@@ -1,51 +1,68 @@
+import NaoEncontrado from "../erros/naoEncontrado.js";
 import { autor } from "../models/Autor.js";
 
 class AutorController {
-    static async listarAutores (req, res) {
+    static listarAutores = async (req, res, next) => {
         try {
             const listaAutores = await autor.find({});
-            res.status(200).json(listaAutores);
+            if (listaAutores !== null) {
+                res.status(200).json(listaAutores);
+            } else {
+                next(new NaoEncontrado("Autores não localizados no banco de dados."));
+            }
         } catch (erro) {
-            res.status(500).json({message: `Erro ao listar autores: ${erro.message}`});
+            next(erro);
         }
     }
 
-    static async listarAutorPorId (req, res) {
+    static listarAutorPorId = async (req, res, next) => {
         try {
             const id = req.params.id;
             const autorEncontrado = await autor.findById(id);
-            res.status(200).json(autorEncontrado);
+            if (autorEncontrado !== null) {
+                res.status(200).json(autorEncontrado);
+            } else {
+                next(new NaoEncontrado("Autor não localizado no banco de dados."));
+            }
         } catch (erro) {
-            res.status(500).json({message: `Erro ao buscar autor: ${erro.message}`});
+            next(erro);
         }
     }
 
-    static async cadastrarAutores (req, res) {
+    static cadastrarAutores = async (req, res, next) => {
         try {
             const novoAutor = await autor.create(req.body);
             res.status(201).json({message: "Autor criado com sucesso!", autor: novoAutor});
         } catch (erro) {
-            res.status(500).json({message: `Erro ao cadastrar novo autor: ${erro.message}`});
+            next(erro);
         }        
     }
 
-    static async atualizarAutor (req, res) {
+    static atualizarAutor = async (req, res, next) => {
         try {
             const id = req.params.id;
-            await autor.findByIdAndUpdate(id, req.body);
-            res.status(200).json({message: "Autor atualizado com sucesso."});
+            if (id !== null) {
+                await autor.findByIdAndUpdate(id, req.body);
+                res.status(200).json({message: "Autor atualizado com sucesso."});
+            } else {
+                next(new NaoEncontrado("Autor não localizado no banco de dados."));
+            }
         } catch (erro) {
-            res.status(500).json({message: `Erro ao atualizar autor: ${erro.message}`});
+            next(erro);
         }
     }
 
-    static async deletarAutor (req, res) {
+    static deletarAutor = async (req, res, next) => {
         try {
             const id = req.params.id;
-            await autor.findByIdAndDelete(id);
-            res.status(200).json({message: "Autor deletado com sucesso."});
+            if (id !== null) {
+                await autor.findByIdAndDelete(id);
+                res.status(200).json({message: "Autor deletado com sucesso."});
+            } else {
+                next(new NaoEncontrado("Autor não localizado no banco de dados."));
+            }
         } catch (erro) {
-            res.status(500).json({message: `Erro ao deletar autor: ${erro.message}`});
+            next(erro);
         }
     }
 }
