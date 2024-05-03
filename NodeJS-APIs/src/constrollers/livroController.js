@@ -1,16 +1,12 @@
-import livro from "../models/Livro.js";
+import { autor, livro } from "../models/index.js";
 import NaoEncontrado from "../erros/naoEncontrado.js";
-import { autor } from "../models/Autor.js";
 
 class LivroController {
     static listarLivros = async (req, res, next) => {
         try {
-            const listaLivros = await livro.find({});
-            if (listaLivros !== null) {
-                res.status(200).json(listaLivros);
-            } else {
-                next(new NaoEncontrado("Livros não localizados no banco de dados."));
-            }
+            const buscaLivros = livro.find();
+            req.resultado = buscaLivros;
+            next();
         } catch (erro) {
             next(erro);
         }
@@ -81,18 +77,51 @@ class LivroController {
         }
     }
 
-    static listarLivrosPorEditora = async (req, res, next) => {
-        const editora = req.query.editora;
+    static listarLivrosPorFiltro = async (req, res, next) => {
         try {
-            const livrosPorEditora = await livro.find({editora: editora});
-            if (livrosPorEditora !== null) {
-                res.status(200).json(livrosPorEditora);
+            const busca = await processaBusca(req.query);
+            if (busca !== null) {
+                console.log(busca);
+                const livrosEncontrados = livro.find(busca);
+                if (livrosEncontrados !== null) {
+                    req.resultado = livrosEncontrados;
+                    next();
+                } else {
+                    next(new NaoEncontrado("Livros não localizados no banco de dados."));
+                }
             } else {
-                next(new NaoEncontrado("Livros não localizados no banco de dados."));
+                next(new NaoEncontrado("Nenhum dado encontrado no banco de dados."))
             }
         } catch (erro) {
             next(erro);
         }
+    }
+}
+
+async function processaBusca(params) {
+    try {
+        //const { editor, titulo, nomeAutor } = params;
+        const { editor, titulo } = params;
+        const busca = {};
+
+        if (editor) busca.editor = editor;
+        if (titulo) busca.titulo = new RegExp(titulo, "i");
+        /*
+        if (nomeAutor) {
+            const dadosAutor = await autor.findOne({ nome: nomeAutor });
+            if (dadosAutor !== null) {
+                const idAutor = dadosAutor._id;
+                busca.autor = idAutor;
+                console.log(idAutor);
+            } else {
+                next(new NaoEncontrado("Autor não localizado no banco de dados."))
+            }
+        }
+        */
+
+        return busca;
+    } catch (erro) {
+        next(erro);
     }
 }
 

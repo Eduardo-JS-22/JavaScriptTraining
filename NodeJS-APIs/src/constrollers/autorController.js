@@ -1,12 +1,13 @@
 import NaoEncontrado from "../erros/naoEncontrado.js";
-import { autor } from "../models/Autor.js";
+import { autor } from "../models/index.js";
 
 class AutorController {
     static listarAutores = async (req, res, next) => {
         try {
-            const listaAutores = await autor.find({});
+            const listaAutores = autor.find({});
             if (listaAutores !== null) {
-                res.status(200).json(listaAutores);
+                req.resultado = listaAutores;
+                next();
             } else {
                 next(new NaoEncontrado("Autores não localizados no banco de dados."));
             }
