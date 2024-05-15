@@ -1,0 +1,31 @@
+Model: lida apenas com a interação com os dados no banco de dados.
+Controller: lida apenas com as requisições e respostas.
+Routes: lida apenas rediricionando as requisições recebidas para os controllers.
+Services: lida com as regras de negócios, a lógica dos calculos, interações de dados, etc.
+
+
+CRIAÇÃO DE BANCO DE DADOS
+
+CRIA O MODELO DE DADOS NO BRANCO DE DADOS: npx sequelize-cli model:generate --name Pessoa --attributes nome:string,email:string,cpf:string,ativo:boolean,role:string
+FAZ A MIGRAÇÃO E CRIA O BANCO DE DADOS COM BASE NO MODELO: npx sequelize-cli db:migrate
+CRIA OS SEEDERS PARA FAZER A POPULAÇÃO DE DADOS: npx sequelize-cli seed:generate --name demo-pessoa
+FAZ A POPULAÇÃO DO BANCO DE DADOS COM BASE NOS SEEDERS: npx sequelize-cli db:seed:all ou npx sequelize-cli db:seed --seed "NOME DO ARQUIVO SEEDERS" (ex: 20240515191904-demo-matriculas.js)
+
+
+RELAÇÃO ENTRE TABELAS DE BANCO DE DADOS
+
+docente_id: {
+    allowNull: false,
+    type: Sequelize.INTEGER,
+    references: { model: 'pessoas', key: 'id' }
+},
+
+REFERENCES faz referencia à tabela (pessoas) e a chave (id) do objeto.
+
+
+RELACIONAMENTOS ENTRE TABELAS DE BANCO DE DADOS
+
+Equipe.hasMany(Atleta);
+Atleta.belongsTo(Equipe);
+
+Uma equipe tem vários (hasMany) atletas, mas atletas pertencem a (belongsTo) somente uma equipe cada.
