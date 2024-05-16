@@ -1,5 +1,5 @@
 const { where } = require('sequelize');
-const dataSource = require('../models');
+const dataSource = require('../database/models');
 
 class Services {
     constructor(nomeDoModel) {
@@ -8,6 +8,10 @@ class Services {
 
     async pegaTodosOsRegistros() {
         return dataSource[this.model].findAll();
+    }
+
+    async pegaRegistrosPorEscopo(escopo) {
+      return dataSource[this.model].scope(escopo).findAll();
     }
 
     async pegaUmRegistroPorId(id) {
